@@ -7,8 +7,9 @@ use Device::SerialPort;
 use Device::MindWave::Utils qw(checksum
                                packet_isa);
 use Device::MindWave::Packet::Parser;
+use Time::HiRes qw(sleep);
 
-use constant TRIES => 20;
+use constant TRIES => 1000;
 
 our $VERSION = '0.01';
 
@@ -157,7 +158,7 @@ sub disconnect_nb
     my ($self) = @_;
 
     $self->_write_bytes([ 0xC1 ]);
-    
+
     return 1;
 }
 
@@ -188,7 +189,11 @@ sub read_packet
     my $tries = TRIES();
     my $prev_byte = 0;
     while ($tries--) {
-        my ($byte, undef) = $self->_read(1);
+        my $length = 0;
+        my $byte;
+        while ($length != 1) {
+            ($byte, $length) = $self->_read(1);
+        }
         if (((ord $prev_byte) == 0xAA) and ((ord $byte) == 0xAA)) {
             last;
         } else {
@@ -200,7 +205,11 @@ sub read_packet
         die "Unable to find synchronisation bytes (read ".(TRIES())." bytes).";
     }
 
-    my ($len, undef) = $self->_read(1);
+    my $length = 0;
+    my $len;
+    while ($length != 1) {
+        ($len, $length) = $self->_read(1);
+    }
     $len = ord $len;
     if (($len < 0) or ($len > 169)) {
         die "Length byte has invalid value ($len): expected 0-169.";
@@ -216,19 +225,26 @@ sub read_packet
     }
     my @bytes = map { ord $_ } split //, $data;
 
+    if ($tries == 0) {
+        die "Unable to read entire packet (tried to read ".(TRIES())." times).";
+    }
+
     my $len_actual = @bytes;
     if ($len != $len_actual) {
         die "Length from packet ($len) does not match actual length ".
             "($len_actual).";
     }
 
-    my ($checksum, undef) = $self->_read(1);
+    $length = 0;
+    my $checksum;
+    while ($length != 1) {
+        ($checksum, $length) = $self->_read(1);
+    }
     $checksum = ord $checksum;
     my $checksum_actual = checksum(@bytes);
 
     if ($checksum != $checksum_actual) {
-        die "Checksum ($checksum) from packet does not match ".
-            "actual checksum ($checksum_actual).";
+        goto &read_packet;
     }
 
     return $self->{'parser'}->parse(\@bytes);
