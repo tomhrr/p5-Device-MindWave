@@ -4,9 +4,10 @@ use strict;
 use warnings;
 
 use List::Util qw(sum);
+use Scalar::Util qw(blessed);
 
 use base qw(Exporter);
-our @EXPORT_OK = qw(checksum);
+our @EXPORT_OK = qw(checksum packet_isa);
 
 sub checksum
 {
@@ -15,6 +16,15 @@ sub checksum
     my $sum = sum(0, @bytes);
     my $byte = $sum & 0xFF;
     return ((~$byte) & 0xFF);
+}
+
+sub packet_isa
+{
+    my ($packet, $suffix) = @_;
+
+    return
+        ((blessed $packet)
+            and ($packet->isa('Device::MindWave::Packet::'.$suffix)));
 }
 
 1;
@@ -39,6 +49,13 @@ Takes a list of bytes as its arguments. Returns the checksum of those
 bytes as an integer. The checksum is calculated by summing the bytes,
 taking the lowest eight bits, and returning the one's complement of
 that value.
+
+=item B<packet_isa>
+
+Takes an arbitrary object and a packet package name suffix (i.e.
+without the beginning 'Device::MindWave::Packet::' part) as its
+arguments. Returns a boolean indicating whether the object is a packet
+of the relevant type.
 
 =back
 

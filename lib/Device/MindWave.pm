@@ -4,7 +4,8 @@ use strict;
 use warnings;
 
 use Device::SerialPort;
-use Device::MindWave::Utils qw(checksum);
+use Device::MindWave::Utils qw(checksum
+                               packet_isa);
 use Device::MindWave::Packet::Parser;
 
 use constant TRIES => 20;
@@ -77,17 +78,78 @@ sub _write_bytes
     return $self->_write($data);
 }
 
-sub connect_nb
+sub _to_headset_id_bytes
 {
-    my ($self, $upper, $lower) = @_;
+    my ($upper, $lower) = @_;
 
     if ($upper > 255) {
         $lower = $upper & 0xFF;
         $upper = ($upper >> 8) & 0xFF;
     }
 
+    return ($upper, $lower);
+}
+
+sub connect_nb
+{
+    my ($self, $upper, $lower) = @_;
+
+    ($upper, $lower) = _to_headset_id_bytes($upper, $lower);
     $self->_write_bytes([ 0xC0, $upper, $lower ]);
     return 1;
+}
+
+sub connect
+{
+    my ($self, @args) = @_;
+
+    $self->connect_nb(@args);
+
+    my $tries = 15;
+    while ($tries--) {
+        my $packet = $self->read_packet();
+        if (packet_isa($packet, 'Dongle::HeadsetFound')) {
+            return 1;
+        } elsif (packet_isa($packet, 'Dongle::HeadsetNotFound')) {
+            die "Headset not found.";
+        } elsif (packet_isa($packet, 'Dongle::RequestDenied')) {
+            die "Request denied by dongle.";
+        }
+        sleep 1;
+    }
+
+    die "Unable to connect to headset.";
+}
+
+sub auto_connect_nb
+{
+    my ($self) = @_;
+
+    $self->_write_bytes([ 0xC2 ]);
+
+    return 1;
+}
+
+sub auto_connect
+{
+    my ($self) = @_;
+
+    $self->auto_connect_nb();
+
+    my $tries = 15;
+    while ($tries--) {
+        my $packet = $self->read_packet();
+        if (packet_isa($packet, 'Dongle::HeadsetFound')) {
+            return 1;
+        } elsif (packet_isa($packet, 'Dongle::HeadsetNotFound')) {
+            die "No headset was found.";
+        } elsif (packet_isa($packet, 'Dongle::RequestDenied')) {
+            die "Request denied by dongle.";
+        }
+        sleep 1;
+    }
+
+    die "Unable to connect to any headset.";
 }
 
 sub disconnect_nb
@@ -95,8 +157,28 @@ sub disconnect_nb
     my ($self) = @_;
 
     $self->_write_bytes([ 0xC1 ]);
-
+    
     return 1;
+}
+
+sub disconnect
+{
+    my ($self) = @_;
+
+    $self->disconnect_nb();
+
+    my $tries = 15;
+    while ($tries--) {
+        my $packet = $self->read_packet();
+        if (packet_isa($packet, 'Dongle::HeadsetDisconnected')) {
+            return 1;
+        } elsif (packet_isa($packet, 'Dongle::RequestDenied')) {
+            die "Request denied by dongle.";
+        }
+        sleep 1;
+    }
+
+    die "Unable to disconnect from headset.";
 }
 
 sub read_packet
@@ -212,7 +294,15 @@ L<Device::MindWave>.
 
 =item B<connect_nb>
 
+=item B<connect>
+
+=item B<auto_connect_nb>
+
+=item B<auto_connect>
+
 =item B<disconnect_nb>
+
+=item B<disconnect>
 
 =item B<read_packet>
 
