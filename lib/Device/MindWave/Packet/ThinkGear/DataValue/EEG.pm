@@ -7,18 +7,15 @@ use Device::MindWave::Utils qw(checksum);
 
 use base qw(Device::MindWave::Packet::ThinkGear::DataValue);
 
+my @FIELDS = qw(delta theta low_alpha high_alpha
+                low_beta high_beta low_gamma high_gamma);
+
 sub new
 {
     my ($class, @values) = @_;
 
-    my $self = { delta      => $values[0],
-                 theta      => $values[1],
-                 low_alpha  => $values[2],
-                 high_alpha => $values[3],
-                 low_beta   => $values[4],
-                 high_beta  => $values[5],
-                 low_gamma  => $values[6],
-                 high_gamma => $values[7], };
+    my $self = {};
+    @{$self}{@FIELDS} = @values;
     bless $self, $class;
     return $self;
 }
@@ -36,10 +33,7 @@ sub data_as_bytes
 {
     my ($self) = @_;
 
-    return [ 0x18,
-             map { _value_to_three_bytes($self->{$_}) }
-                 qw(delta theta low_alpha high_alpha
-                    low_beta high_beta low_gamma high_gamma) ];
+    return [ 0x18, map { _value_to_three_bytes($self->{$_}) } @FIELDS ];
 }
 
 1;
@@ -48,12 +42,12 @@ __END__
 
 =head1 NAME
 
-Device::MindWave::Packet::ThinkGear::DataValue::RawWave
+Device::MindWave::Packet::ThinkGear::DataValue::EEG
 
 =head1 DESCRIPTION
 
-Implementation of the 'RAW Wave' data value. This is a 16-bit signed
-(two's complement) value.
+Implementation of the 'ASIC EEG' data value. This is a series of raw
+EEG values.
 
 =head1 CONSTRUCTOR
 

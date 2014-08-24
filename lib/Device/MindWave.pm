@@ -7,9 +7,6 @@ use Device::SerialPort;
 use Device::MindWave::Utils qw(checksum
                                packet_isa);
 use Device::MindWave::Packet::Parser;
-use Time::HiRes qw(sleep);
-
-use constant TRIES => 1000;
 
 our $VERSION = '0.01';
 
@@ -32,6 +29,8 @@ sub new
         $port->databits(8);
         $port->stopbits(1);
         $port->handshake("none");
+        $port->read_const_time(1000);
+        $port->read_char_time(5);
         $port->write_settings();
     } else {
         die "Either 'fh' or 'port' must be provided.";
@@ -48,14 +47,20 @@ sub _read
 {
     my ($self, $len) = @_;
 
+    my $buf;
+    my $bytes;
     if ($self->{'is_fh'}) {
-        my $buf;
-        my $bytes = $self->{'port'}->read($buf, $len);
-        return ($buf, $bytes);
+        $bytes = $self->{'port'}->read($buf, $len);
     } else {
-        my $buf = $self->{'port'}->read($len);
-        return ($buf, (length $buf));
+        $buf = $self->{'port'}->read($len);
+        $bytes = length $buf;
     }
+
+    if ($len != (length $buf)) {
+        die "Received too few characters on read ($bytes instead of $len).";
+    }
+
+    return $buf;
 }
 
 sub _write
@@ -91,12 +96,29 @@ sub _to_headset_id_bytes
     return ($upper, $lower);
 }
 
+sub _wait_for_standby
+{
+    my ($self) = @_;
+
+    my $tries = 15;
+    while ($tries--) {
+        my $packet = $self->read_packet();
+        if (packet_isa($packet, 'Dongle::StandbyMode')) {
+            return 1;
+        }
+        sleep 1;
+    }
+
+    die "Timed out waiting for standby packet (15s).";
+}
+
 sub connect_nb
 {
     my ($self, $upper, $lower) = @_;
 
     ($upper, $lower) = _to_headset_id_bytes($upper, $lower);
     $self->_write_bytes([ 0xC0, $upper, $lower ]);
+
     return 1;
 }
 
@@ -104,6 +126,7 @@ sub connect
 {
     my ($self, @args) = @_;
 
+    $self->_wait_for_standby();
     $self->connect_nb(@args);
 
     my $tries = 15;
@@ -135,6 +158,7 @@ sub auto_connect
 {
     my ($self) = @_;
 
+    $self->_wait_for_standby();
     $self->auto_connect_nb();
 
     my $tries = 15;
@@ -169,9 +193,27 @@ sub disconnect
     $self->disconnect_nb();
 
     my $tries = 15;
+    my $got_error = 0;
     while ($tries--) {
-        my $packet = $self->read_packet();
-        if (packet_isa($packet, 'Dongle::HeadsetDisconnected')) {
+        # Allow one error during packet read, since there will
+        # occasionally be a packet length mismatch problem.
+        my $packet = eval { $self->read_packet() };
+        if (my $error = $@) {
+            if ($got_error == 1) {
+                die $error;
+            } else {
+                $got_error = 1;
+            }
+        }
+        # Flush the remaining ThinkGear packets.
+        if (packet_isa($packet, 'ThinkGear')) {
+            $tries++;
+            next;
+        }
+        if (packet_isa($packet, 'Dongle::HeadsetDisconnected')
+                or packet_isa($packet, 'Dongle::StandbyMode')) {
+            # Occasionally, no HeadsetDisconnected packet will be
+            # returned, hence the check for standby mode.
             return 1;
         } elsif (packet_isa($packet, 'Dongle::RequestDenied')) {
             die "Request denied by dongle.";
@@ -186,14 +228,11 @@ sub read_packet
 {
     my ($self) = @_;
 
-    my $tries = TRIES();
+    my $tries = 1000;
     my $prev_byte = 0;
     while ($tries--) {
         my $length = 0;
-        my $byte;
-        while ($length != 1) {
-            ($byte, $length) = $self->_read(1);
-        }
+        my $byte = $self->_read(1);
         if (((ord $prev_byte) == 0xAA) and ((ord $byte) == 0xAA)) {
             last;
         } else {
@@ -202,32 +241,16 @@ sub read_packet
     }
 
     if ($tries == 0) {
-        die "Unable to find synchronisation bytes (read ".(TRIES())." bytes).";
+        die "Unable to find synchronisation bytes (read 1000 bytes).";
     }
 
-    my $length = 0;
-    my $len;
-    while ($length != 1) {
-        ($len, $length) = $self->_read(1);
-    }
-    $len = ord $len;
+    my $len = ord $self->_read(1);
     if (($len < 0) or ($len > 169)) {
         die "Length byte has invalid value ($len): expected 0-169.";
     }
 
-    my $data = '';
-    $tries = TRIES();
-    my $remaining = $len;
-    while ((length $data != $len) and ($tries--)) {
-        my ($new_data, undef) = $self->_read($remaining);
-        $data .= $new_data;
-        $remaining = $len - (length $data);
-    }
+    my $data = $self->_read($len);
     my @bytes = map { ord $_ } split //, $data;
-
-    if ($tries == 0) {
-        die "Unable to read entire packet (tried to read ".(TRIES())." times).";
-    }
 
     my $len_actual = @bytes;
     if ($len != $len_actual) {
@@ -235,12 +258,7 @@ sub read_packet
             "($len_actual).";
     }
 
-    $length = 0;
-    my $checksum;
-    while ($length != 1) {
-        ($checksum, $length) = $self->_read(1);
-    }
-    $checksum = ord $checksum;
+    my $checksum = ord $self->_read(1);
     my $checksum_actual = checksum(@bytes);
 
     if ($checksum != $checksum_actual) {
@@ -295,7 +313,9 @@ The port name (e.g. 'COM4', '/dev/ttyUSB0').
 =item fh
 
 An object representing the MindWave. Must implement C<read> and
-C<write>, as per L<IO::Handle>.
+C<write>, as per L<IO::Handle>. This library will not reattempt
+C<read>s on the filehandle if fewer characters than requested are
+returned.
 
 =back
 
@@ -310,15 +330,44 @@ L<Device::MindWave>.
 
 =item B<connect_nb>
 
+Takes a headset ID as its argument, sends a message to the dongle to
+connect to that headset, and returns immediately. The caller must use
+C<read_packet> to determine whether the connection was made
+successfully.
+
+The headset ID can be provided as either one 16-bit number or two
+8-bit numbers in network byte order. For example, if the headset has
+the ID '12AB', then the argument can be C<0x12AB>, or C<0x12> and
+C<0xAB>. (The identifier is printed at the bottom of the label inside
+the battery compartment.)
+
 =item B<connect>
+
+As per C<connect_nb>, except that it blocks until either the
+connection is successfully established or an error occurs (e.g.
+request denied by dongle due to existing connection). Dies on error.
 
 =item B<auto_connect_nb>
 
+As per C<connect_nb>, except that it does not take any arguments and
+the dongle message is such that it will attempt to connect to any
+headset within range.
+
 =item B<auto_connect>
+
+As per C<connect>, except for C<auto_connect_nb>.
 
 =item B<disconnect_nb>
 
+Sends a message to the dongle to disconnect from the headset. The
+caller must use C<read_packet> to determine whether the connection was
+closed successfully.
+
 =item B<disconnect>
+
+As per C<disconnect_nb>, except that it blocks until either the
+connection is closed or an error occurs (e.g. request denied by dongle
+because it is not currently connected to a headset). Dies on error.
 
 =item B<read_packet>
 
