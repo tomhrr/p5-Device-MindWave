@@ -25,16 +25,6 @@ sub data_as_bytes
     return [ 0x03, 0xD4, 0x01, 0x01 ];
 }
 
-sub as_bytes
-{
-    my ($self) = @_;
-
-    my $bytes = $self->data_as_bytes();
-    my $checksum = checksum($bytes);
-
-    return [ 0xAA, 0xAA, @{$bytes}, $checksum ];
-}
-
 1;
 
 __END__

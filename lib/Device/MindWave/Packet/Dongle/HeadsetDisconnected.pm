@@ -31,16 +31,6 @@ sub data_as_bytes
              $self->{'headset_lower'} ];
 }
 
-sub as_bytes
-{
-    my ($self) = @_;
-
-    my $bytes = $self->data_as_bytes();
-    my $checksum = checksum($bytes);
-
-    return [ 0xAA, 0xAA, @{$bytes}, $checksum ];
-}
-
 1;
 
 __END__

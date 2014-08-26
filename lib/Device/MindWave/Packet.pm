@@ -5,11 +5,6 @@ use warnings;
 
 our $VERSION = 0.01;
 
-sub as_bytes
-{
-    die "Abstract method 'as_bytes' not implemented.";
-}
-
 sub as_string
 {
     die "Abstract method 'as_string' not implemented.";
@@ -35,11 +30,6 @@ Interface module for MindWave packets.
 =head1 PUBLIC METHODS
 
 =over 4
-
-=item B<as_bytes>
-
-Returns the packet as an arrayref of bytes. Includes the
-synchronisation bytes and checksum byte, where applicable.
 
 =item B<as_string>
 

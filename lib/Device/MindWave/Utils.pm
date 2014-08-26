@@ -7,7 +7,9 @@ use List::Util qw(sum);
 use Scalar::Util qw(blessed);
 
 use base qw(Exporter);
-our @EXPORT_OK = qw(checksum packet_isa);
+our @EXPORT_OK = qw(checksum
+                    packet_isa
+                    packet_to_bytes);
 
 sub checksum
 {
@@ -25,6 +27,16 @@ sub packet_isa
     return
         ((blessed $packet)
             and ($packet->isa('Device::MindWave::Packet::'.$suffix)));
+}
+
+sub packet_to_bytes
+{
+    my ($packet) = @_;
+
+    my $bytes = $packet->data_as_bytes();
+    my $checksum = checksum($bytes);
+
+    return [ 0xAA, 0xAA, @{$bytes}, $checksum ];
 }
 
 1;
