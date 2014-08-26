@@ -371,9 +371,18 @@ because it is not currently connected to a headset). Dies on error.
 
 =item B<read_packet>
 
-=back
+Attempts to parse and return a packet from the dongle. The returned
+packet objects implement L<Device::MindWave::Packet>. If a checksum
+error is encountered, then the read operation is retried; otherwise,
+this dies on error. By default, the read timeout is one second.
 
-=head1 PACKET TYPES
+When not connected to a headset, this method will return dongle
+communication protocol packets. Each of these implements the
+L<Device::MindWave::Packet::Dongle> interface. When connected to a
+headset, this method will return ThinkGear packets: see
+L<Device::MindWave::Packet::ThinkGear>.
+
+=back
 
 =head1 AUTHOR
 
