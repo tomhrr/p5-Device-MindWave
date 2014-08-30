@@ -34,7 +34,12 @@ sub data_as_bytes
     my $upper = ($value >> 8) & 0xFF;
     my $lower = $value & 0xFF;
 
-    return [ 0x02, $upper, $lower ];
+    return [ 0x80, 0x02, $upper, $lower ];
+}
+
+sub length
+{
+    return 4;
 }
 
 1;
@@ -65,6 +70,8 @@ Implementation of the 'RAW Wave' data value. This is a 16-bit signed
 =item B<as_string>
 
 =item B<data_as_bytes>
+
+=item B<length>
 
 =back
 

@@ -51,28 +51,28 @@ sub _parse_thinkgear_data_value
 
     if (($code > 0) and ($code < 0x7F)) {
         if ($code == 0x02) {
-            my $packet = Device::MindWave::Packet::ThinkGear::DataValue::PoorSignal->new($bytes, $index);
-            return ($packet, $index + 2);
+            my $datavalue = Device::MindWave::Packet::ThinkGear::DataValue::PoorSignal->new($bytes, $index);
+            return ($datavalue, $index + $datavalue->length());
         } elsif ($code == 0x04) {
-            my $packet = Device::MindWave::Packet::ThinkGear::DataValue::Attention->new($bytes, $index);
-            return ($packet, $index + 2);
+            my $datavalue = Device::MindWave::Packet::ThinkGear::DataValue::Attention->new($bytes, $index);
+            return ($datavalue, $index + $datavalue->length());
         } elsif ($code == 0x05) {
-            my $packet = Device::MindWave::Packet::ThinkGear::DataValue::Meditation->new($bytes, $index);
-            return ($packet, $index + 2);
+            my $datavalue = Device::MindWave::Packet::ThinkGear::DataValue::Meditation->new($bytes, $index);
+            return ($datavalue, $index + $datavalue->length());
         } elsif ($code == 0x16) {
-            my $packet = Device::MindWave::Packet::ThinkGear::DataValue::BlinkStrength->new($bytes, $index);
-            return ($packet, $index + 2);
+            my $datavalue = Device::MindWave::Packet::ThinkGear::DataValue::BlinkStrength->new($bytes, $index);
+            return ($datavalue, $index + $datavalue->length());
         } else {
             warn "Unhandled single-byte value code: $code";
-            return (undef, $index);
+            return (undef, ($index + 2));
         }
     } else {
         if ($code == 0x80) {
-            my $packet = Device::MindWave::Packet::ThinkGear::DataValue::RawWave->new($bytes, $index);
-            return ($packet, ($index + 2 + 3));
+            my $datavalue = Device::MindWave::Packet::ThinkGear::DataValue::RawWave->new($bytes, $index);
+            return ($datavalue, ($index + $datavalue->length()));
         } elsif ($code == 0x83) {
-            my $packet = Device::MindWave::Packet::ThinkGear::DataValue::EEG->new($bytes, $index);
-            return ($packet, ($index + 2 + 24));
+            my $datavalue = Device::MindWave::Packet::ThinkGear::DataValue::EEG->new($bytes, $index);
+            return ($datavalue, ($index + $datavalue->length()));
         } else {
             my $length = $bytes->[$index + 1];
             $index += (2 + $length);

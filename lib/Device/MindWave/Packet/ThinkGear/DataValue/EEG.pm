@@ -43,7 +43,12 @@ sub data_as_bytes
 {
     my ($self) = @_;
 
-    return [ 0x18, map { _value_to_three_bytes($self->{$_}) } @FIELDS ];
+    return [ 0x83, 0x18, map { _value_to_three_bytes($self->{$_}) } @FIELDS ];
+}
+
+sub length
+{
+    return 26;
 }
 
 1;
@@ -74,6 +79,8 @@ EEG values.
 =item B<as_string>
 
 =item B<data_as_bytes>
+
+=item B<length>
 
 =back
 

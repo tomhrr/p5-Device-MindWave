@@ -23,6 +23,11 @@ sub data_as_bytes
     return [ 0x04, $self->{'value'} ];
 }
 
+sub length
+{
+    return 2;
+}
+
 1;
 
 __END__
@@ -51,6 +56,8 @@ value in the range 0-100.
 =item B<as_string>
 
 =item B<data_as_bytes>
+
+=item B<length>
 
 =back
 

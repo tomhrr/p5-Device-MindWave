@@ -23,6 +23,11 @@ sub data_as_bytes
     return [ 0x02, $self->{'value'} ];
 }
 
+sub length
+{
+    return 2;
+}
+
 1;
 
 __END__
@@ -52,6 +57,8 @@ that no signal can be found.
 =item B<as_string>
 
 =item B<data_as_bytes>
+
+=item B<length>
 
 =back
 

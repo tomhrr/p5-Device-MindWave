@@ -50,6 +50,10 @@ Returns the data value's details as a human-readable string.
 
 Returns the data value's payload as an arrayref of bytes.
 
+=item B<length>
+
+Returns the number of bytes in the data value's payload.
+
 =back
 
 =cut
