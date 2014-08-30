@@ -55,10 +55,20 @@ sub as_string
 {
     my ($self) = @_;
 
-    return join ', ', 
+    return join ', ',
            map { my $key = $_;
                  $key =~ s/_/ /g;
                  "$key=".$self->{$_} } @FIELDS;
+}
+
+sub as_hashref
+{
+    my ($self) = @_;
+
+    return { map { my $key = $_;
+                   $key =~ s/_(.)/\U$1/g;
+                   $key = ucfirst $key;
+                   "EEG.$key" => $self->{$_} } @FIELDS };
 }
 
 1;
@@ -91,6 +101,8 @@ EEG values.
 =item B<data_as_bytes>
 
 =item B<length>
+
+=item B<as_hashref>
 
 =back
 

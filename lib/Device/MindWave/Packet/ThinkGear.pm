@@ -45,6 +45,13 @@ sub as_string
     return join '; ', map { $_->as_string() } @{$self->{'data_values'}};
 }
 
+sub as_hashref
+{
+    my ($self) = @_;
+
+    return { map { %{$_->as_hashref()} } @{$self->{'data_values'}} };
+}
+
 1;
 
 __END__
@@ -78,6 +85,11 @@ data: this module simply provides an iterator over those data values.
 
 Return the next C<ThinkGear::DataValue> from the packet. Returns
 the undefined value if no data values remain.
+
+=item B<as_hashref>
+
+Aggregates the hashrefs of the packet's constituent
+C<ThinkGear::DataValue>s, and returns that hashref.
 
 =item B<data_as_bytes>
 

@@ -35,6 +35,13 @@ sub as_string
     return "Blink strength (".$self->{'value'}."/255)";
 }
 
+sub as_hashref
+{
+    my ($self) = @_;
+
+    return { BlinkStrength => $self->{'value'} };
+}
+
 1;
 
 __END__
@@ -65,6 +72,8 @@ single-byte value in the range 0-255.
 =item B<data_as_bytes>
 
 =item B<length>
+
+=item B<as_hashref>
 
 =back
 

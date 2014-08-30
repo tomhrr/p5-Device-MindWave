@@ -35,6 +35,13 @@ sub as_string
     return "Attention (".$self->{'value'}."/100)";
 }
 
+sub as_hashref
+{
+    my ($self) = @_;
+
+    return { Attention => $self->{'value'} };
+}
+
 1;
 
 __END__
@@ -65,6 +72,8 @@ value in the range 0-100.
 =item B<data_as_bytes>
 
 =item B<length>
+
+=item B<as_hashref>
 
 =back
 

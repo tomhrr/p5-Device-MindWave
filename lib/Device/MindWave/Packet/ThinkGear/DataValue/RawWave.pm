@@ -49,6 +49,13 @@ sub as_string
     return "Raw wave: ".$self->{'value'};
 }
 
+sub as_hashref
+{
+    my ($self) = @_;
+
+    return { RawWave => $self->{'value'} };
+}
+
 1;
 
 __END__
@@ -79,6 +86,8 @@ Implementation of the 'RAW Wave' data value. This is a 16-bit signed
 =item B<data_as_bytes>
 
 =item B<length>
+
+=item B<as_hashref>
 
 =back
 

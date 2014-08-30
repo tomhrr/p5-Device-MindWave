@@ -36,6 +36,13 @@ sub as_string
            (($self->{'value'} == 200) ? " (no signal found)" : "");
 }
 
+sub as_hashref
+{
+    my ($self) = @_;
+
+    return { PoorSignal => $self->{'value'} };
+}
+
 1;
 
 __END__
@@ -67,6 +74,8 @@ that no signal can be found.
 =item B<data_as_bytes>
 
 =item B<length>
+
+=item B<as_hashref>
 
 =back
 
