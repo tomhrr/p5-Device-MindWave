@@ -69,6 +69,13 @@ without the beginning 'Device::MindWave::Packet::' part) as its
 arguments. Returns a boolean indicating whether the object is a packet
 of the relevant type.
 
+=item B<packet_to_bytes>
+
+Takes an instance of an implementation of L<Device::MindWave::Packet>
+and returns an arrayref containing the bytes for the packet, including
+the synchronisation bytes at the beginning and the checksum byte at
+the end.
+
 =back
 
 =cut

@@ -9,9 +9,9 @@ use base qw(Device::MindWave::Packet::ThinkGear::DataValue);
 
 sub new
 {
-    my ($class, $value) = @_;
+    my ($class, $bytes, $index) = @_;
 
-    my $self = { value => $value };
+    my $self = { value => $bytes->[$index + 1] };
     bless $self, $class;
     return $self;
 }

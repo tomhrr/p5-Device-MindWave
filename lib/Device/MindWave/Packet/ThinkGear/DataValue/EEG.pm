@@ -12,7 +12,17 @@ my @FIELDS = qw(delta theta low_alpha high_alpha
 
 sub new
 {
-    my ($class, @values) = @_;
+    my ($class, $bytes, $index) = @_;
+
+    $index += 2;
+
+    my @values;
+    for (my $i = 0; $i < 8; $i++) {
+        my $offset = $i * 3;
+        push @values, (($bytes->[$index + $offset]     << 16) |
+                       ($bytes->[$index + $offset + 1] << 8)  |
+                       ($bytes->[$index + $offset + 2]));
+    }
 
     my $self = {};
     @{$self}{@FIELDS} = @values;

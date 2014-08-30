@@ -5,6 +5,11 @@ use warnings;
 
 our $VERSION = 0.01;
 
+sub new
+{
+    die "Abstract method 'new' not implemented.";
+}
+
 sub as_string
 {
     die "Abstract method 'as_string' not implemented.";
@@ -30,6 +35,12 @@ Interface module for MindWave ThinkGear data values.
 =head1 PUBLIC METHODS
 
 =over 4
+
+=item B<new>
+
+Takes a byte arrayref and an index into that arrayref as its
+arguments, representing the payload of the data value. Returns a new
+instance of the relevant data value. Dies on error.
 
 =item B<as_string>
 

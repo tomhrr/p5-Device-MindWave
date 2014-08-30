@@ -40,58 +40,42 @@ sub _parse_thinkgear_data_value
         }
     }
 
+    if ($excode != 0) {
+        warn "Unhandled data value (uses extended codes).";
+    }
+
     my $code = $bytes->[$index];
     if (not defined $code) {
         die "No code found in ostensible ThinkGear data value.";
     }
 
     if (($code > 0) and ($code < 0x7F)) {
-        $index++;
-        my $value = $bytes->[$index];
-        $index++;
-
         if ($code == 0x02) {
-            my $packet = Device::MindWave::Packet::ThinkGear::DataValue::PoorSignal->new($value);
-            return ($packet, $index);
+            my $packet = Device::MindWave::Packet::ThinkGear::DataValue::PoorSignal->new($bytes, $index);
+            return ($packet, $index + 2);
         } elsif ($code == 0x04) {
-            my $packet = Device::MindWave::Packet::ThinkGear::DataValue::Attention->new($value);
-            return ($packet, $index);
+            my $packet = Device::MindWave::Packet::ThinkGear::DataValue::Attention->new($bytes, $index);
+            return ($packet, $index + 2);
         } elsif ($code == 0x05) {
-            my $packet = Device::MindWave::Packet::ThinkGear::DataValue::Meditation->new($value);
-            return ($packet, $index);
+            my $packet = Device::MindWave::Packet::ThinkGear::DataValue::Meditation->new($bytes, $index);
+            return ($packet, $index + 2);
         } elsif ($code == 0x16) {
-            my $packet = Device::MindWave::Packet::ThinkGear::DataValue::BlinkStrength->new($value);
-            return ($packet, $index);
+            my $packet = Device::MindWave::Packet::ThinkGear::DataValue::BlinkStrength->new($bytes, $index);
+            return ($packet, $index + 2);
         } else {
             warn "Unhandled single-byte value code: $code";
             return (undef, $index);
         }
     } else {
-        $index++;
-        my $length = $bytes->[$index];
-        $index++;
-
         if ($code == 0x80) {
-            my $upper = $bytes->[$index];
-            my $lower = $bytes->[$index + 1];
-            my $value = ($upper << 8) | $lower;
-            if ($value > 32767) {
-                $value -= 65535;
-            }
-            my $packet = Device::MindWave::Packet::ThinkGear::DataValue::RawWave->new($value);
-            return ($packet, ($index + 2));
+            my $packet = Device::MindWave::Packet::ThinkGear::DataValue::RawWave->new($bytes, $index);
+            return ($packet, ($index + 2 + 3));
         } elsif ($code == 0x83) {
-            my @values;
-            for (my $i = 0; $i < 8; $i++) {
-                my $offset = $i * 3;
-                push @values, (($bytes->[$index + $offset]     << 16) |
-                               ($bytes->[$index + $offset + 1] << 8)  |
-                               ($bytes->[$index + $offset + 2]));
-            }
-            my $packet = Device::MindWave::Packet::ThinkGear::DataValue::EEG->new(@values);
-            return ($packet, ($index + 24));
+            my $packet = Device::MindWave::Packet::ThinkGear::DataValue::EEG->new($bytes, $index);
+            return ($packet, ($index + 2 + 24));
         } else {
-            $index += $length;
+            my $length = $bytes->[$index + 1];
+            $index += (2 + $length);
             warn "Unhandled multi-byte value code: $code";
             return (undef, $index);
         }
@@ -120,31 +104,36 @@ sub parse
 {
     my ($self, $bytes) = @_;
 
+    my $index = 0;
+
     if ($bytes->[0] == 0xD0) {
-        my ($hsu, $hsl) = (@{$bytes}[2..3]);
         return
             Device::MindWave::Packet::Dongle::HeadsetFound->new(
-                $hsu, $hsl
+                $bytes, $index
             );
     } elsif ($bytes->[0] == 0xD1) {
-        my ($hsu, $hsl) = (@{$bytes}[2..3]);
         return
             Device::MindWave::Packet::Dongle::HeadsetNotFound->new(
-                $hsu, $hsl
+                $bytes, $index
             );
     } elsif ($bytes->[0] == 0xD2) {
-        my ($hsu, $hsl) = (@{$bytes}[2..3]);
         return
             Device::MindWave::Packet::Dongle::HeadsetDisconnected->new(
-                $hsu, $hsl
+                $bytes, $index
             );
     } elsif ($bytes->[0] == 0xD3) {
-        return Device::MindWave::Packet::Dongle::RequestDenied->new();
+        return Device::MindWave::Packet::Dongle::RequestDenied->new(
+            $bytes, $index
+        );
     } elsif ($bytes->[0] == 0xD4) {
         if ($bytes->[2] == 0x00) {
-            return Device::MindWave::Packet::Dongle::StandbyMode->new();
+            return Device::MindWave::Packet::Dongle::StandbyMode->new(
+                $bytes, $index
+            );
         } elsif ($bytes->[2] == 0x01) {
-            return Device::MindWave::Packet::Dongle::ScanMode->new();
+            return Device::MindWave::Packet::Dongle::ScanMode->new(
+                $bytes, $index
+            );
         }
     } else {
         return $self->_parse_thinkgear($bytes);

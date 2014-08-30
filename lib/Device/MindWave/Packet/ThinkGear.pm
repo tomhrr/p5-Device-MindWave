@@ -56,6 +56,10 @@ data: this module simply provides an iterator over those data values.
 Return the next C<ThinkGear::DataValue> from the packet. Returns
 the undefined value if no data values remain.
 
+=item B<data_as_bytes>
+
+=item B<length>
+
 =back
 
 =cut

@@ -22,7 +22,12 @@ sub data_as_bytes
 {
     my ($self) = @_;
 
-    return [ 0x03, 0xD4, 0x01, 0x00 ];
+    return [ 0xD4, 0x01, 0x00 ];
+}
+
+sub length
+{
+    return 3;
 }
 
 1;
@@ -52,9 +57,9 @@ documentation).
 
 =item B<code>
 
-=item B<as_bytes>
-
 =item B<data_as_bytes>
+
+=item B<length>
 
 =back
 

@@ -9,7 +9,14 @@ use base qw(Device::MindWave::Packet::ThinkGear::DataValue);
 
 sub new
 {
-    my ($class, $value) = @_;
+    my ($class, $bytes, $index) = @_;
+
+    my $upper = $bytes->[$index + 2];
+    my $lower = $bytes->[$index + 3];
+    my $value = ($upper << 8) | $lower;
+    if ($value > 32767) {
+        $value -= 65535;
+    }
 
     my $self = { value => $value };
     bless $self, $class;

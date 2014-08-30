@@ -5,6 +5,11 @@ use warnings;
 
 our $VERSION = 0.01;
 
+sub new
+{
+    die "Abstract method 'new' not implemented.";
+}
+
 sub as_string
 {
     die "Abstract method 'as_string' not implemented.";
@@ -31,6 +36,13 @@ Interface module for MindWave packets.
 
 =over 4
 
+=item B<new>
+
+Takes a byte arrayref and an index into that arrayref as its
+arguments, representing the data of the packet (exclusive of the
+synchronisation bytes and the checksum byte). Returns a new instance
+of the relevant packet. Dies on error.
+
 =item B<as_string>
 
 Returns the packet's details as a human-readable string.
@@ -38,6 +50,10 @@ Returns the packet's details as a human-readable string.
 =item B<data_as_bytes>
 
 Returns the packet's payload as an arrayref of bytes.
+
+=item B<length>
+
+Returns the number of bytes in the packet's payload.
 
 =back
 

@@ -9,10 +9,10 @@ use base qw(Device::MindWave::Packet::Dongle);
 
 sub new
 {
-    my ($class, $hsu, $hsl) = @_;
+    my ($class, $bytes, $index) = @_;
 
-    my $self = { headset_upper => $hsu,
-                 headset_lower => $hsl };
+    my $self = { headset_upper => $bytes->[$index + 2],
+                 headset_lower => $bytes->[$index + 3] };
     bless $self, $class;
     return $self;
 }
@@ -26,9 +26,14 @@ sub data_as_bytes
 {
     my ($self) = @_;
 
-    return [ 0x04, 0xD2, 0x02,
+    return [ 0xD2, 0x02,
              $self->{'headset_upper'},
              $self->{'headset_lower'} ];
+}
+
+sub length
+{
+    return 4;
 }
 
 1;
@@ -61,6 +66,8 @@ documentation).
 =item B<as_bytes>
 
 =item B<data_as_bytes>
+
+=item B<length>
 
 =back
 
