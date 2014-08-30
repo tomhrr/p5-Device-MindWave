@@ -9,6 +9,7 @@ use Device::MindWave::Utils qw(checksum
 use Device::MindWave::Packet::Parser;
 
 our $VERSION = '0.01';
+our $_NO_SLEEP = 0;
 
 sub new
 {
@@ -41,6 +42,15 @@ sub new
                  parser => Device::MindWave::Packet::Parser->new() };
     bless $self, $class;
     return $self;
+}
+
+sub _sleep
+{
+    if ($_NO_SLEEP) {
+        return 1;
+    }
+    sleep($_[0]);
+    return 1;
 }
 
 sub _read
@@ -106,7 +116,7 @@ sub _wait_for_standby
         if (packet_isa($packet, 'Dongle::StandbyMode')) {
             return 1;
         }
-        sleep 1;
+        _sleep(1);
     }
 
     die "Timed out waiting for standby packet (15s).";
@@ -139,7 +149,7 @@ sub connect
         } elsif (packet_isa($packet, 'Dongle::RequestDenied')) {
             die "Request denied by dongle.";
         }
-        sleep 1;
+        _sleep(1);
     }
 
     die "Unable to connect to headset.";
@@ -171,7 +181,7 @@ sub auto_connect
         } elsif (packet_isa($packet, 'Dongle::RequestDenied')) {
             die "Request denied by dongle.";
         }
-        sleep 1;
+        _sleep(1);
     }
 
     die "Unable to connect to any headset.";
@@ -218,7 +228,7 @@ sub disconnect
         } elsif (packet_isa($packet, 'Dongle::RequestDenied')) {
             die "Request denied by dongle.";
         }
-        sleep 1;
+        _sleep(1);
     }
 
     die "Unable to disconnect from headset.";
@@ -230,7 +240,7 @@ sub read_packet
 
     my $tries = 1000;
     my $prev_byte = 0;
-    while ($tries--) {
+    while (--$tries) {
         my $length = 0;
         my $byte = $self->_read(1);
         if (((ord $prev_byte) == 0xAA) and ((ord $byte) == 0xAA)) {

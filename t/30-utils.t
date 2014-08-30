@@ -20,7 +20,7 @@ use Device::MindWave::Packet::Dongle::RequestDenied;
     for my $test (@checksum_tests) {
         my ($input, $exp_output) = @{$test};
         my $output = checksum($input);
-        is($output, $exp_output, 
+        is($output, $exp_output,
             'Got correct output for checksum of '.
             '['.(join ' ', map { sprintf '0x%X', $_ } @{$input}).']');
     }

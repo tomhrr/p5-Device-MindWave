@@ -10,11 +10,11 @@ use Device::MindWave::Packet::Dongle;
 use Device::MindWave::Packet::ThinkGear::DataValue;
 
 my %table = (
-    'Device::MindWave::Packet' 
+    'Device::MindWave::Packet'
         => [qw(new as_string as_bytes)],
-    'Device::MindWave::Packet::Dongle' 
+    'Device::MindWave::Packet::Dongle'
         => [qw(new as_string as_bytes code)],
-    'Device::MindWave::Packet::ThinkGear::DataValue' 
+    'Device::MindWave::Packet::ThinkGear::DataValue'
         => [qw(new as_string as_bytes as_hashref)],
 );
 

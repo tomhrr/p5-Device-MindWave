@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use IO::File;
+use Device::MindWave::Utils qw(packet_to_bytes);
 
 our $VERSION = 0.01;
 
@@ -21,16 +22,16 @@ sub push_packet
 {
     my ($self, $packet) = @_;
 
-    return $self->push_bytes($packet->as_bytes());
+    return $self->push_bytes(packet_to_bytes($packet));
 }
 
 sub push_bytes
 {
-    my ($self, @bytes) = @_;
+    my ($self, $bytes) = @_;
 
     $self->{'buffer'}->seek($self->{'write_index'}, 0);
-    for my $byte (@bytes) {
-        $self->{'buffer'}->syswrite(chr($byte));
+    for my $byte (@{$bytes}) {
+        $self->{'buffer'}->syswrite(chr $byte);
         $self->{'write_index'}++;
     }
     $self->{'buffer'}->flush();
