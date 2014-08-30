@@ -15,7 +15,7 @@ sub new
     my $lower = $bytes->[$index + 3];
     my $value = ($upper << 8) | $lower;
     if ($value > 32767) {
-        $value -= 65535;
+        $value -= 65536;
     }
 
     my $self = { value => $value };
@@ -29,7 +29,7 @@ sub as_bytes
 
     my $value = $self->{'value'};
     if ($value < 0) {
-        $value += 65535;
+        $value += 65536;
     }
     my $upper = ($value >> 8) & 0xFF;
     my $lower = $value & 0xFF;

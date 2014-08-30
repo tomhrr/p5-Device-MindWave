@@ -55,10 +55,11 @@ sub as_string
 {
     my ($self) = @_;
 
-    return join ', ',
-           map { my $key = $_;
-                 $key =~ s/_/ /g;
-                 "$key=".$self->{$_} } @FIELDS;
+    return "EEG: ".
+           (join ', ',
+            map { my $key = $_;
+                  $key =~ s/_/ /g;
+                  "$key=".$self->{$_} } @FIELDS);
 }
 
 sub as_hashref
