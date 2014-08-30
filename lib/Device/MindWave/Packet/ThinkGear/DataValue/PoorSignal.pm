@@ -16,7 +16,7 @@ sub new
     return $self;
 }
 
-sub data_as_bytes
+sub as_bytes
 {
     my ($self) = @_;
 
@@ -71,7 +71,7 @@ that no signal can be found.
 
 =item B<as_string>
 
-=item B<data_as_bytes>
+=item B<as_bytes>
 
 =item B<length>
 

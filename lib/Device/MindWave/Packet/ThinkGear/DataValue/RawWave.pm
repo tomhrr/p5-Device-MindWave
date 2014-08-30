@@ -23,7 +23,7 @@ sub new
     return $self;
 }
 
-sub data_as_bytes
+sub as_bytes
 {
     my ($self) = @_;
 
@@ -83,7 +83,7 @@ Implementation of the 'RAW Wave' data value. This is a 16-bit signed
 
 =item B<as_string>
 
-=item B<data_as_bytes>
+=item B<as_bytes>
 
 =item B<length>
 

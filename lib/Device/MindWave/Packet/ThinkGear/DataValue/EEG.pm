@@ -39,7 +39,7 @@ sub _value_to_three_bytes
             (($value)       & 0xFF));
 }
 
-sub data_as_bytes
+sub as_bytes
 {
     my ($self) = @_;
 
@@ -98,7 +98,7 @@ EEG values.
 
 =item B<as_string>
 
-=item B<data_as_bytes>
+=item B<as_bytes>
 
 =item B<length>
 

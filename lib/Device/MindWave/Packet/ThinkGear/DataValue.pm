@@ -20,9 +20,9 @@ sub as_hashref
     die "Abstract method 'as_hashref' not implemented.";
 }
 
-sub data_as_bytes
+sub as_bytes
 {
-    die "Abstract method 'data_as_bytes' not implemented.";
+    die "Abstract method 'as_bytes' not implemented.";
 }
 
 1;
@@ -60,7 +60,7 @@ has multiple, hence this method.)
 For a given module, the key(s) in this hashref will begin with the
 final segment of the module's name.
 
-=item B<data_as_bytes>
+=item B<as_bytes>
 
 Returns the data value's payload as an arrayref of bytes.
 

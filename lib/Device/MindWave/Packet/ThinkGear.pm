@@ -24,11 +24,11 @@ sub next_data_value
     return $self->{'data_values'}->[$self->{'index'}++];
 }
 
-sub data_as_bytes
+sub as_bytes
 {
     my ($self) = @_;
 
-    return [ map { @{$_->data_as_bytes()} } @{$self->{'data_values'}} ];
+    return [ map { @{$_->as_bytes()} } @{$self->{'data_values'}} ];
 }
 
 sub length
@@ -91,7 +91,7 @@ the undefined value if no data values remain.
 Aggregates the hashrefs of the packet's constituent
 C<ThinkGear::DataValue>s, and returns that hashref.
 
-=item B<data_as_bytes>
+=item B<as_bytes>
 
 =item B<length>
 

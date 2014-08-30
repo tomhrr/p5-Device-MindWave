@@ -16,7 +16,7 @@ sub new
     return $self;
 }
 
-sub data_as_bytes
+sub as_bytes
 {
     my ($self) = @_;
 
@@ -69,7 +69,7 @@ value in the range 0-100.
 
 =item B<as_string>
 
-=item B<data_as_bytes>
+=item B<as_bytes>
 
 =item B<length>
 

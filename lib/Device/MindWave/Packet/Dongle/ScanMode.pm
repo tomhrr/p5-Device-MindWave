@@ -18,7 +18,7 @@ sub code
     return 0xD5;
 }
 
-sub data_as_bytes
+sub as_bytes
 {
     my ($self) = @_;
 
@@ -62,7 +62,7 @@ Implementation of the 'Dongle is Trying to find a headset' packet
 
 =item B<code>
 
-=item B<data_as_bytes>
+=item B<as_bytes>
 
 =item B<length>
 

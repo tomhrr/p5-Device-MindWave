@@ -15,9 +15,9 @@ sub as_string
     die "Abstract method 'as_string' not implemented.";
 }
 
-sub data_as_bytes
+sub as_bytes
 {
-    die "Abstract method 'data_as_bytes' not implemented.";
+    die "Abstract method 'as_bytes' not implemented.";
 }
 
 1;
@@ -47,7 +47,7 @@ of the relevant packet. Dies on error.
 
 Returns the packet's details as a human-readable string.
 
-=item B<data_as_bytes>
+=item B<as_bytes>
 
 Returns the packet's payload as an arrayref of bytes.
 

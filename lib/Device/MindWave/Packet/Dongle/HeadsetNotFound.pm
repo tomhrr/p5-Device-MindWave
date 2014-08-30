@@ -22,7 +22,7 @@ sub code
     return 0xD1;
 }
 
-sub data_as_bytes
+sub as_bytes
 {
     my ($self) = @_;
 
@@ -72,7 +72,7 @@ documentation).
 
 =item B<code>
 
-=item B<data_as_bytes>
+=item B<as_bytes>
 
 =item B<length>
 

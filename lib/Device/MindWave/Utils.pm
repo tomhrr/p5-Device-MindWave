@@ -33,7 +33,7 @@ sub packet_to_bytes
 {
     my ($packet) = @_;
 
-    my $bytes = $packet->data_as_bytes();
+    my $bytes = $packet->as_bytes();
     my $checksum = checksum($bytes);
 
     return [ 0xAA, 0xAA, @{$bytes}, $checksum ];
