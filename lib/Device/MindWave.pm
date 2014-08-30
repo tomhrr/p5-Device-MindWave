@@ -238,7 +238,7 @@ sub read_packet
 {
     my ($self) = @_;
 
-    my $tries = 1000;
+    my $tries = 1001;
     my $prev_byte = 0;
     while (--$tries) {
         my $length = 0;
@@ -255,18 +255,12 @@ sub read_packet
     }
 
     my $len = ord $self->_read(1);
-    if (($len < 0) or ($len > 169)) {
+    if ($len > 169) {
         die "Length byte has invalid value ($len): expected 0-169.";
     }
 
     my $data = $self->_read($len);
     my @bytes = map { ord $_ } split //, $data;
-
-    my $len_actual = @bytes;
-    if ($len != $len_actual) {
-        die "Length from packet ($len) does not match actual length ".
-            "($len_actual).";
-    }
 
     my $checksum = ord $self->_read(1);
     my $checksum_actual = checksum(\@bytes);
