@@ -13,9 +13,9 @@ our @EXPORT_OK = qw(checksum
 
 sub checksum
 {
-    my @bytes = @_;
+    my ($bytes) = @_;
 
-    my $sum = sum(0, @bytes);
+    my $sum = sum(0, @{$bytes});
     my $byte = $sum & 0xFF;
     return ((~$byte) & 0xFF);
 }
@@ -36,7 +36,7 @@ sub packet_to_bytes
     my $bytes = $packet->as_bytes();
     my $checksum = checksum($bytes);
 
-    return [ 0xAA, 0xAA, @{$bytes}, $checksum ];
+    return [ 0xAA, 0xAA, scalar @{$bytes}, @{$bytes}, $checksum ];
 }
 
 1;
@@ -57,10 +57,10 @@ Utility functions used in various libraries.
 
 =item B<checksum>
 
-Takes a list of bytes as its arguments. Returns the checksum of those
-bytes as an integer. The checksum is calculated by summing the bytes,
-taking the lowest eight bits, and returning the one's complement of
-that value.
+Takes an arrayref of bytes as its single argument. Returns the
+checksum of those bytes as an integer. The checksum is calculated by
+summing the bytes, taking the lowest eight bits, and returning the
+one's complement of that value.
 
 =item B<packet_isa>
 

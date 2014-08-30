@@ -259,7 +259,7 @@ sub read_packet
     }
 
     my $checksum = ord $self->_read(1);
-    my $checksum_actual = checksum(@bytes);
+    my $checksum_actual = checksum(\@bytes);
 
     if ($checksum != $checksum_actual) {
         goto &read_packet;
