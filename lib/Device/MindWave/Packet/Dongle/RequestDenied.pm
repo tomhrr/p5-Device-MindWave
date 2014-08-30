@@ -30,6 +30,11 @@ sub length
     return 2;
 }
 
+sub as_string
+{
+    return "Request denied";
+}
+
 1;
 
 __END__
@@ -57,11 +62,11 @@ documentation).
 
 =item B<code>
 
-=item B<as_bytes>
-
 =item B<data_as_bytes>
 
 =item B<length>
+
+=item B<as_string>
 
 =back
 

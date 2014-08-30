@@ -28,6 +28,13 @@ sub length
     return 2;
 }
 
+sub as_string
+{
+    my ($self) = @_;
+
+    return "Blink strength (".$self->{'value'}."/255)";
+}
+
 1;
 
 __END__

@@ -28,6 +28,14 @@ sub length
     return 2;
 }
 
+sub as_string
+{
+    my ($self) = @_;
+
+    return "Poor signal (".$self->{'value'}."/200)".
+           (($self->{'value'} == 200) ? " (no signal found)" : "");
+}
+
 1;
 
 __END__

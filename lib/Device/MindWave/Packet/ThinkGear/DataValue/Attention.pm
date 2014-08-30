@@ -28,6 +28,13 @@ sub length
     return 2;
 }
 
+sub as_string
+{
+    my ($self) = @_;
+
+    return "Attention (".$self->{'value'}."/100)";
+}
+
 1;
 
 __END__

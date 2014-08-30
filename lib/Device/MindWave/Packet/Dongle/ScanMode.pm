@@ -30,6 +30,11 @@ sub length
     return 3;
 }
 
+sub as_string
+{
+    return "Scanning";
+}
+
 1;
 
 __END__
@@ -60,6 +65,8 @@ Implementation of the 'Dongle is Trying to find a headset' packet
 =item B<data_as_bytes>
 
 =item B<length>
+
+=item B<as_string>
 
 =back
 

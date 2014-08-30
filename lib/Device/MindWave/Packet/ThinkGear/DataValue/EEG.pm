@@ -51,6 +51,16 @@ sub length
     return 26;
 }
 
+sub as_string
+{
+    my ($self) = @_;
+
+    return join ', ', 
+           map { my $key = $_;
+                 $key =~ s/_/ /g;
+                 "$key=".$self->{$_} } @FIELDS;
+}
+
 1;
 
 __END__

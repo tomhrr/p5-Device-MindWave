@@ -36,6 +36,15 @@ sub length
     return 4;
 }
 
+sub as_string
+{
+    my ($self) = @_;
+
+    return sprintf "Headset (%x%x) not found",
+                   $self->{'headset_upper'},
+                   $self->{'headset_lower'};
+}
+
 1;
 
 __END__
@@ -63,11 +72,11 @@ documentation).
 
 =item B<code>
 
-=item B<as_bytes>
-
 =item B<data_as_bytes>
 
 =item B<length>
+
+=item B<as_string>
 
 =back
 

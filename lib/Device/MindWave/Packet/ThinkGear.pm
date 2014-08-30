@@ -3,6 +3,8 @@ package Device::MindWave::Packet::ThinkGear;
 use strict;
 use warnings;
 
+use List::Util qw(sum);
+
 use base qw(Device::MindWave::Packet);
 
 our $VERSION = 0.01;
@@ -20,6 +22,27 @@ sub next_data_value
     my ($self) = @_;
 
     return $self->{'data_values'}->[$self->{'index'}++];
+}
+
+sub data_as_bytes
+{
+    my ($self) = @_;
+
+    return [ map { @{$_->data_as_bytes()} } @{$self->{'data_values'}} ];
+}
+
+sub length
+{
+    my ($self) = @_;
+
+    return (sum 0, map { $_->length() } @{$self->{'data_values'}});
+}
+
+sub as_string
+{
+    my ($self) = @_;
+
+    return join '; ', map { $_->as_string() } @{$self->{'data_values'}};
 }
 
 1;
@@ -59,6 +82,8 @@ the undefined value if no data values remain.
 =item B<data_as_bytes>
 
 =item B<length>
+
+=item B<as_string>
 
 =back
 

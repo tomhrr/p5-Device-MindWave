@@ -42,6 +42,13 @@ sub length
     return 4;
 }
 
+sub as_string
+{
+    my ($self) = @_;
+
+    return "Raw wave: ".$self->{'value'};
+}
+
 1;
 
 __END__
