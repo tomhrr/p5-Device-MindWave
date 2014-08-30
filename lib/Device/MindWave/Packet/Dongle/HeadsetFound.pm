@@ -40,7 +40,7 @@ sub as_string
 {
     my ($self) = @_;
 
-    return sprintf "Headset (%x%x) found",
+    return sprintf "Headset (%X%X) found",
                    $self->{'headset_upper'},
                    $self->{'headset_lower'};
 }
