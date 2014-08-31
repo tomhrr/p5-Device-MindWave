@@ -377,8 +377,9 @@ because it is not currently connected to a headset). Dies on error.
 
 Attempts to parse and return a packet from the dongle. The returned
 packet objects implement L<Device::MindWave::Packet>. If a checksum
-error is encountered, then the read operation is retried; otherwise,
-this dies on error. By default, the read timeout is one second.
+error is encountered, then the read operation is retried, but all
+other errors will result in a die. By default, the read timeout is one
+second.
 
 When not connected to a headset, this method will return dongle
 communication protocol packets. Each of these implements the
