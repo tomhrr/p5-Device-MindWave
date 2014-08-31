@@ -33,7 +33,7 @@ sub make
     $mwt->push_packet(make('Dongle::HeadsetFound',
                            [ 0xD0, 0x02, 0x12, 0x34 ], 0));
 
-    eval { $mw->connect('1234'); };
+    eval { $mw->connect(0x12, 0x34); };
     ok((not $@), 'Connected to headset successfully');
     diag $@ if $@;
 
@@ -72,7 +72,7 @@ sub make
     $mwt->push_packet(make('Dongle::StandbyMode'));
     $mwt->push_packet(make('Dongle::HeadsetNotFound',
                            [ 0xD1, 0x02, 0x12, 0x34 ], 0));
-    eval { $mw->connect('1234'); };
+    eval { $mw->connect(0x1234); };
     ok($@, 'Unable to connect to headset (not found)');
     like($@, qr/Headset not found/,
         'Got correct error message');
@@ -81,7 +81,7 @@ sub make
 
     $mwt->push_packet(make('Dongle::StandbyMode'));
     $mwt->push_packet(make('Dongle::RequestDenied'));
-    eval { $mw->connect('1234'); };
+    eval { $mw->connect(0x1234); };
     ok($@, 'Unable to connect to headset (request denied)');
     like($@, qr/Request denied/,
         'Got correct error message');
@@ -91,7 +91,7 @@ sub make
     $mwt->push_packet(make('Dongle::StandbyMode'));
     $mwt->push_packet(make('Dongle::HeadsetNotFound',
                            [ 0xD1, 0x02, 0x12, 0x34 ], 0));
-    eval { $mw->auto_connect('1234'); };
+    eval { $mw->auto_connect(); };
     ok($@, 'Unable to auto-connect to headset (not found)');
     like($@, qr/No headset was found/,
         'Got correct error message');
@@ -100,7 +100,7 @@ sub make
 
     $mwt->push_packet(make('Dongle::StandbyMode'));
     $mwt->push_packet(make('Dongle::RequestDenied'));
-    eval { $mw->auto_connect('1234'); };
+    eval { $mw->auto_connect(); };
     ok($@, 'Unable to connect to headset (request denied)');
     like($@, qr/Request denied/,
         'Got correct error message');
@@ -116,7 +116,7 @@ sub make
     for (1..5) {
         $mwt->push_packet(make('Dongle::StandbyMode'));
     }
-    eval { $mw->connect('1234'); };
+    eval { $mw->connect(0x1234); };
     ok($@, 'Unable to connect to headset (scan completed)');
     like($@, qr/Unable to connect to headset/,
         'Got correct error message');
@@ -126,7 +126,7 @@ sub make
     for (1..15) {
         $mwt->push_packet(make('Dongle::ScanMode'));
     }
-    eval { $mw->connect('1234'); };
+    eval { $mw->connect(0x1234); };
     ok($@, 'Unable to connect to headset (no standby)');
     like($@, qr/Timed out waiting for standby/,
         'Got correct error message');
@@ -137,7 +137,7 @@ sub make
     $mwt->push_packet(make('Dongle::StandbyMode'));
     $mwt->push_packet(make('Dongle::HeadsetFound',
                            [ 0xD0, 0x02, 0x12, 0x34 ], 0));
-    eval { $mw->connect('1234'); };
+    eval { $mw->connect(0x1234); };
     ok((not $@), 'Connected to headset successfully');
     diag $@ if $@;
 
@@ -160,7 +160,7 @@ sub make
     for (1..15) {
         $mwt->push_packet(make('Dongle::ScanMode'));
     }
-    eval { $mw->disconnect('1234'); };
+    eval { $mw->disconnect(); };
     ok($@, 'Unable to disconnect from headset (timed out)');
     like($@, qr/Unable to disconnect from headset/,
         'Got correct error message');
@@ -171,7 +171,7 @@ sub make
     for (1..15) {
         $mwt->push_packet(make('Dongle::ScanMode'));
     }
-    eval { $mw->auto_connect('1234'); };
+    eval { $mw->auto_connect(); };
     ok($@, 'Unable to auto-connect to any headset (timed out)');
     like($@, qr/Unable to connect to any headset/,
         'Got correct error message');

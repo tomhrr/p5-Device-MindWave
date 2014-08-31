@@ -27,7 +27,7 @@ sub make
     $mwt->push_packet(make('Dongle::HeadsetFound',
                            [ 0xD0, 0x02, 0x12, 0x34 ], 0));
 
-    eval { $mw->connect('1234'); };
+    eval { $mw->connect(0x1234); };
     ok((not $@), 'Connected to headset successfully');
     diag $@ if $@;
 
