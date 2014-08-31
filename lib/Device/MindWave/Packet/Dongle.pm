@@ -5,8 +5,6 @@ use warnings;
 
 use base qw(Device::MindWave::Packet);
 
-our $VERSION = 0.01;
-
 sub code
 {
     die "Abstract method 'code' not implemented.";

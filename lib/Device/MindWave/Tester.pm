@@ -6,8 +6,6 @@ use warnings;
 use IO::File;
 use Device::MindWave::Utils qw(packet_to_bytes);
 
-our $VERSION = 0.01;
-
 sub new
 {
     my $class = shift;

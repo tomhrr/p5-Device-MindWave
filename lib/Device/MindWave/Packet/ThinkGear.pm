@@ -26,8 +26,6 @@ my %MB_CODE_MAP = (
     0x83 => 'EEG',
 );
 
-our $VERSION = 0.01;
-
 sub new
 {
     my ($class, $bytes, $index) = @_;

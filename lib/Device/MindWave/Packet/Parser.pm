@@ -20,8 +20,6 @@ my %PACKET_MAP = (
     'ScanMode'            => [ 0xD4, 0x01, 0x01 ],
 );
 
-our $VERSION = 0.01;
-
 sub new
 {
     my $class = shift;
