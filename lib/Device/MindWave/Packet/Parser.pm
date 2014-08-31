@@ -11,6 +11,15 @@ use Device::MindWave::Packet::Dongle::StandbyMode;
 use Device::MindWave::Packet::Dongle::ScanMode;
 use Device::MindWave::Packet::ThinkGear;
 
+my %PACKET_MAP = (
+    'HeadsetFound'        => [ 0xD0 ],
+    'HeadsetNotFound'     => [ 0xD1 ],
+    'HeadsetDisconnected' => [ 0xD2 ],
+    'RequestDenied'       => [ 0xD3 ],
+    'StandbyMode'         => [ 0xD4, 0x01, 0x00 ],
+    'ScanMode'            => [ 0xD4, 0x01, 0x01 ],
+);
+
 our $VERSION = 0.01;
 
 sub new
@@ -25,42 +34,18 @@ sub parse
 {
     my ($self, $bytes) = @_;
 
-    my $index = 0;
-
-    if ($bytes->[0] == 0xD0) {
-        return
-            Device::MindWave::Packet::Dongle::HeadsetFound->new(
-                $bytes, $index
-            );
-    } elsif ($bytes->[0] == 0xD1) {
-        return
-            Device::MindWave::Packet::Dongle::HeadsetNotFound->new(
-                $bytes, $index
-            );
-    } elsif ($bytes->[0] == 0xD2) {
-        return
-            Device::MindWave::Packet::Dongle::HeadsetDisconnected->new(
-                $bytes, $index
-            );
-    } elsif ($bytes->[0] == 0xD3) {
-        return Device::MindWave::Packet::Dongle::RequestDenied->new(
-            $bytes, $index
-        );
-    } elsif ($bytes->[0] == 0xD4) {
-        if ($bytes->[2] == 0x00) {
-            return Device::MindWave::Packet::Dongle::StandbyMode->new(
-                $bytes, $index
-            );
-        } elsif ($bytes->[2] == 0x01) {
-            return Device::MindWave::Packet::Dongle::ScanMode->new(
-                $bytes, $index
-            );
+    PACKET: for my $packet (keys %PACKET_MAP) {
+        my $match_bytes = $PACKET_MAP{$packet};
+        for (my $i = 0; $i < @{$match_bytes}; $i++) {
+            if ($bytes->[$i] != $match_bytes->[$i]) {
+                next PACKET;
+            }
         }
+        my $pkg = "Device::MindWave::Packet::Dongle::".$packet;
+        return $pkg->new($bytes, 0);
     }
 
-    return Device::MindWave::Packet::ThinkGear->new(
-        $bytes, $index
-    );
+    return Device::MindWave::Packet::ThinkGear->new($bytes, 0);
 }
 
 1;
