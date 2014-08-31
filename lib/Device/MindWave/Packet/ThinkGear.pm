@@ -56,10 +56,6 @@ sub _parse_data_value
     }
 
     my $code = $bytes->[$index];
-    if (not defined $code) {
-        die "No code found in ostensible ThinkGear data value.";
-    }
-
     if ($code < 0x80) {
         if (exists $SB_CODE_MAP{$code}) {
             my $pkg = "Device::MindWave::Packet::ThinkGear::DataValue::".
