@@ -8,7 +8,7 @@ WriteMakefile(
     AUTHOR           => q{Tom Harrison <tomhrr@cpan.org>},
     VERSION_FROM     => 'lib/Device/MindWave.pm',
     ABSTRACT         => 'Read data from a NeuroSky MindWave headset',
-    LICENSE          => 'Artistic_2_0',
+    LICENSE          => 'perl_5',
     PL_FILES         => {},
     MIN_PERL_VERSION => 5.006,
     CONFIGURE_REQUIRES => {
@@ -26,4 +26,9 @@ WriteMakefile(
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'Device-MindWave-*' },
+    META_MERGE     => {
+        resources => {
+            repository => 'https://github.com/tomhrr/p5-Device-MindWave'
+        }
+    },
 );

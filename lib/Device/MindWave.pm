@@ -8,7 +8,7 @@ use Device::MindWave::Utils qw(checksum
                                packet_isa);
 use Device::MindWave::Packet::Parser;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 our $_NO_SLEEP = 0;
 
 sub new
@@ -279,10 +279,6 @@ __END__
 =head1 NAME
 
 Device::MindWave
-
-=head1 VERSION
-
-Version 0.01
 
 =head1 SYNOPSIS
 
