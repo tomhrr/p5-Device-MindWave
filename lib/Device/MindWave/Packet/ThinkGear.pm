@@ -3,18 +3,103 @@ package Device::MindWave::Packet::ThinkGear;
 use strict;
 use warnings;
 
+use Device::MindWave::Packet::ThinkGear::DataValue::PoorSignal;
+use Device::MindWave::Packet::ThinkGear::DataValue::Attention;
+use Device::MindWave::Packet::ThinkGear::DataValue::Meditation;
+use Device::MindWave::Packet::ThinkGear::DataValue::BlinkStrength;
+use Device::MindWave::Packet::ThinkGear::DataValue::RawWave;
+use Device::MindWave::Packet::ThinkGear::DataValue::EEG;
+
 use List::Util qw(sum);
 
 use base qw(Device::MindWave::Packet);
+
+my %SB_CODE_MAP = (
+    0x02 => 'PoorSignal',
+    0x04 => 'Attention',
+    0x05 => 'Meditation',
+    0x16 => 'BlinkStrength',
+);
+
+my %MB_CODE_MAP = (
+    0x80 => 'RawWave',
+    0x83 => 'EEG',
+);
 
 our $VERSION = 0.01;
 
 sub new
 {
-    my $class = shift;
-    my $self = { data_values => \@_, index => 0 };
+    my ($class, $bytes, $index) = @_;
+
+    my $dvs = _parse($bytes, $index);
+    my $self = { data_values => $dvs, index => 0 };
     bless $self, $class;
     return $self;
+}
+
+sub _parse_data_value
+{
+    my ($bytes, $index) = @_;
+
+    my $excode = 0;
+    for (; $index < @{$bytes}; $index++) {
+        if ($bytes->[$index] == 0x55) {
+            $excode++;
+        } else {
+            last;
+        }
+    }
+
+    if ($excode != 0) {
+        warn "Unhandled data value (uses extended codes).";
+    }
+
+    my $code = $bytes->[$index];
+    if (not defined $code) {
+        die "No code found in ostensible ThinkGear data value.";
+    }
+
+    if ($code < 0x80) {
+        if (exists $SB_CODE_MAP{$code}) {
+            my $pkg = "Device::MindWave::Packet::ThinkGear::DataValue::".
+                      $SB_CODE_MAP{$code};
+            my $datavalue = $pkg->new($bytes, $index);
+            return ($datavalue, $index + $datavalue->length());
+        } else {
+            warn "Unhandled single-byte value code: $code";
+            return (undef, ($index + 2));
+        }
+    } else {
+        if (exists $MB_CODE_MAP{$code}) {
+            my $pkg = "Device::MindWave::Packet::ThinkGear::DataValue::".
+                      $MB_CODE_MAP{$code};
+            my $datavalue = $pkg->new($bytes, $index);
+            return ($datavalue, $index + $datavalue->length());
+        } else {
+            my $length = $bytes->[$index + 1];
+            $index += (2 + $length);
+            warn "Unhandled multi-byte value code: $code";
+            return (undef, $index);
+        }
+    }
+}
+
+sub _parse
+{
+    my ($bytes, $index) = @_;
+
+    my $length = @{$bytes};
+    my @dvs;
+    my $dv;
+    while ($index < $length) {
+        ($dv, $index) = _parse_data_value($bytes, $index);
+        if (defined $dv) {
+            push @dvs, $dv;
+        }
+    }
+
+    return \@dvs;
 }
 
 sub next_data_value

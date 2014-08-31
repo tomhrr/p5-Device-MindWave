@@ -31,19 +31,21 @@ sub make
     ok((not $@), 'Connected to headset successfully');
     diag $@ if $@;
 
-    $mwt->push_packet(
-        make('ThinkGear',
-             make('ThinkGear::DataValue::PoorSignal',
-                  [ 0x02, 0x01 ], 0),
-             make('ThinkGear::DataValue::Attention',
-                  [ 0x02, 0x02 ], 0),
-             make('ThinkGear::DataValue::Meditation',
-                  [ 0x05, 0x03 ], 0),
-             make('ThinkGear::DataValue::BlinkStrength',
-                  [ 0x16, 0x04 ], 0),
-             make('ThinkGear::DataValue::RawWave',
-                  [ 0x80, 0x02, 0x12, 0x34 ], 0))
+    my @dvs = (
+        make('ThinkGear::DataValue::PoorSignal',
+            [ 0x02, 0x01 ], 0),
+        make('ThinkGear::DataValue::Attention',
+            [ 0x02, 0x02 ], 0),
+        make('ThinkGear::DataValue::Meditation',
+            [ 0x05, 0x03 ], 0),
+        make('ThinkGear::DataValue::BlinkStrength',
+            [ 0x16, 0x04 ], 0),
+        make('ThinkGear::DataValue::RawWave',
+            [ 0x80, 0x02, 0x12, 0x34 ], 0)
     );
+    my $tg = Device::MindWave::Packet::ThinkGear->new([], 0);
+    $tg->{'data_values'} = \@dvs;
+    $mwt->push_packet($tg);
 
     my $p = $mw->read_packet();
     ok(packet_isa($p, 'ThinkGear'),

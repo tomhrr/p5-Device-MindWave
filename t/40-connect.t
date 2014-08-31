@@ -145,7 +145,9 @@ sub make
         Device::MindWave::Packet::ThinkGear::DataValue::PoorSignal->new(
             [ 0x02, 0x2F ], 0
         );
-    $mwt->push_packet(make('ThinkGear', $ps));
+    my $tg = Device::MindWave::Packet::ThinkGear->new([], 0);
+    $tg->{'data_values'} = [ $ps ];
+    $mwt->push_packet($tg);
     $mwt->push_bytes([ 0xAA, 0x01, 0xAA, (0x01) x 1000 ]);
     $mwt->push_bytes([ 0xAA, 0xAA, 0xFE ]);
     eval { $mw->disconnect(); };
